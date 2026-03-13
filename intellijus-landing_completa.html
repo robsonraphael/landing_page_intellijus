@@ -1,0 +1,1519 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>IntelliJus — Monitoramento Processual Inteligente</title>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Sans:wght@300;400;500&display=swap"
+    rel="stylesheet">
+  <style>
+    :root {
+      --navy: #0a0f1e;
+      --navy-mid: #111827;
+      --navy-light: #1a2540;
+      --gold: #c9a84c;
+      --gold-light: #e8c97a;
+      --gold-dim: #9a7a38;
+      --cream: #f5f0e8;
+      --cream-dim: #d4cbb8;
+      --white: #ffffff;
+      --text-muted: #7a8499;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      background: var(--navy);
+      color: var(--cream);
+      font-family: 'DM Sans', sans-serif;
+      font-weight: 300;
+      overflow-x: hidden;
+    }
+
+    /* ── Grain overlay ── */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+      pointer-events: none;
+      z-index: 1000;
+      opacity: 0.4;
+    }
+
+    /* ── NAV ── */
+    nav {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 1.5rem 4rem;
+      border-bottom: 1px solid rgba(201, 168, 76, 0.12);
+      background: rgba(10, 15, 30, 0.85);
+      backdrop-filter: blur(20px);
+    }
+
+    .logo {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.6rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      color: var(--cream);
+    }
+
+    .logo span {
+      color: var(--gold);
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 2.5rem;
+      list-style: none;
+    }
+
+    .nav-links a {
+      text-decoration: none;
+      color: var(--cream-dim);
+      font-size: 0.82rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      transition: color 0.3s;
+    }
+
+    .nav-links a:hover {
+      color: var(--gold);
+    }
+
+    .nav-cta {
+      background: transparent;
+      border: 1px solid var(--gold);
+      color: var(--gold);
+      padding: 0.6rem 1.8rem;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.82rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: all 0.3s;
+      text-decoration: none;
+    }
+
+    .nav-cta:hover {
+      background: var(--gold);
+      color: var(--navy);
+    }
+
+    /* ── HERO ── */
+    .hero {
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      position: relative;
+      overflow: hidden;
+      padding: 8rem 4rem 4rem;
+    }
+
+    .hero-bg {
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(ellipse 80% 60% at 50% 0%, rgba(201, 168, 76, 0.06) 0%, transparent 60%),
+        radial-gradient(ellipse 40% 40% at 80% 60%, rgba(201, 168, 76, 0.04) 0%, transparent 50%),
+        linear-gradient(180deg, var(--navy) 0%, #080c18 100%);
+    }
+
+    /* Geometric lines */
+    .hero-bg::before {
+      content: '';
+      position: absolute;
+      top: 10%;
+      right: 8%;
+      width: 320px;
+      height: 320px;
+      border: 1px solid rgba(201, 168, 76, 0.08);
+      transform: rotate(15deg);
+    }
+
+    .hero-bg::after {
+      content: '';
+      position: absolute;
+      top: 15%;
+      right: 12%;
+      width: 240px;
+      height: 240px;
+      border: 1px solid rgba(201, 168, 76, 0.05);
+      transform: rotate(30deg);
+    }
+
+    .hero-content {
+      position: relative;
+      z-index: 2;
+      max-width: 900px;
+      text-align: center;
+    }
+
+    .hero-eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.75rem;
+      font-size: 0.75rem;
+      letter-spacing: 0.25em;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 2rem;
+      opacity: 0;
+      animation: fadeUp 0.8s ease forwards 0.2s;
+    }
+
+    .hero-eyebrow::before,
+    .hero-eyebrow::after {
+      content: '';
+      width: 30px;
+      height: 1px;
+      background: var(--gold);
+      opacity: 0.5;
+    }
+
+    h1 {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(3rem, 6vw, 5.5rem);
+      font-weight: 300;
+      line-height: 1.1;
+      color: var(--cream);
+      margin-bottom: 1.5rem;
+      opacity: 0;
+      animation: fadeUp 0.8s ease forwards 0.4s;
+    }
+
+    h1 em {
+      font-style: italic;
+      color: var(--gold);
+    }
+
+    .hero-sub {
+      font-size: 1.05rem;
+      color: var(--text-muted);
+      max-width: 560px;
+      margin: 0 auto 3rem;
+      line-height: 1.8;
+      opacity: 0;
+      animation: fadeUp 0.8s ease forwards 0.6s;
+    }
+
+    .hero-actions {
+      display: flex;
+      gap: 1rem;
+      justify-content: center;
+      flex-wrap: wrap;
+      opacity: 0;
+      animation: fadeUp 0.8s ease forwards 0.8s;
+    }
+
+    .btn-primary {
+      background: var(--gold);
+      color: var(--navy);
+      border: none;
+      padding: 1rem 2.5rem;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.85rem;
+      font-weight: 500;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: all 0.3s;
+      text-decoration: none;
+      display: inline-block;
+    }
+
+    .btn-primary:hover {
+      background: var(--gold-light);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 30px rgba(201, 168, 76, 0.25);
+    }
+
+    .btn-outline {
+      background: transparent;
+      color: var(--cream-dim);
+      border: 1px solid rgba(213, 204, 188, 0.25);
+      padding: 1rem 2.5rem;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.85rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: all 0.3s;
+      text-decoration: none;
+      display: inline-block;
+    }
+
+    .btn-outline:hover {
+      border-color: var(--gold);
+      color: var(--gold);
+    }
+
+    /* Stats strip */
+    .stats-strip {
+      display: flex;
+      justify-content: center;
+      gap: 4rem;
+      margin-top: 5rem;
+      padding-top: 3rem;
+      border-top: 1px solid rgba(201, 168, 76, 0.1);
+      opacity: 0;
+      animation: fadeUp 0.8s ease forwards 1s;
+    }
+
+    .stat {
+      text-align: center;
+    }
+
+    .stat-number {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 2.5rem;
+      font-weight: 300;
+      color: var(--gold);
+      display: block;
+      line-height: 1;
+    }
+
+    .stat-label {
+      font-size: 0.75rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-top: 0.4rem;
+      display: block;
+    }
+
+    /* ── SECTION BASE ── */
+    section {
+      padding: 7rem 4rem;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .section-label {
+      font-size: 0.72rem;
+      letter-spacing: 0.25em;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 1rem;
+      display: block;
+    }
+
+    h2 {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(2rem, 3.5vw, 3rem);
+      font-weight: 300;
+      line-height: 1.2;
+      color: var(--cream);
+      margin-bottom: 1.5rem;
+    }
+
+    h2 em {
+      font-style: italic;
+      color: var(--gold);
+    }
+
+    /* ── HOW IT WORKS ── */
+    .how-section {
+      position: relative;
+    }
+
+    .how-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 5rem;
+      align-items: center;
+      margin-top: 4rem;
+    }
+
+    .how-steps {
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+    }
+
+    .step {
+      display: flex;
+      gap: 1.5rem;
+      padding: 2rem 0;
+      border-bottom: 1px solid rgba(201, 168, 76, 0.08);
+      transition: all 0.3s;
+      cursor: default;
+    }
+
+    .step:last-child {
+      border-bottom: none;
+    }
+
+    .step:hover .step-num {
+      color: var(--gold);
+    }
+
+    .step:hover .step-title {
+      color: var(--cream);
+    }
+
+    .step-num {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 2rem;
+      font-weight: 300;
+      color: rgba(201, 168, 76, 0.3);
+      min-width: 2.5rem;
+      transition: color 0.3s;
+      line-height: 1;
+      padding-top: 0.2rem;
+    }
+
+    .step-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.3rem;
+      font-weight: 400;
+      color: var(--cream-dim);
+      margin-bottom: 0.4rem;
+      transition: color 0.3s;
+    }
+
+    .step-desc {
+      font-size: 0.875rem;
+      color: var(--text-muted);
+      line-height: 1.7;
+    }
+
+    /* Mock alert card */
+    .mock-card {
+      background: var(--navy-light);
+      border: 1px solid rgba(201, 168, 76, 0.15);
+      border-radius: 2px;
+      padding: 2rem;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .mock-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, var(--gold), transparent);
+    }
+
+    .mock-header {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      margin-bottom: 1.5rem;
+      padding-bottom: 1rem;
+      border-bottom: 1px solid rgba(201, 168, 76, 0.1);
+    }
+
+    .mock-icon {
+      width: 36px;
+      height: 36px;
+      background: rgba(201, 168, 76, 0.1);
+      border: 1px solid rgba(201, 168, 76, 0.2);
+      display: grid;
+      place-items: center;
+      font-size: 1rem;
+    }
+
+    .mock-title-text {
+      font-size: 0.8rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--gold);
+      font-weight: 500;
+    }
+
+    .mock-subtitle {
+      font-size: 0.72rem;
+      color: var(--text-muted);
+    }
+
+    .mock-field {
+      margin-bottom: 1rem;
+    }
+
+    .mock-field-label {
+      font-size: 0.68rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 0.3rem;
+    }
+
+    .mock-field-value {
+      font-size: 0.875rem;
+      color: var(--cream-dim);
+      line-height: 1.5;
+    }
+
+    .urgency-badge {
+      display: inline-block;
+      padding: 0.2rem 0.8rem;
+      font-size: 0.7rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      background: rgba(201, 168, 76, 0.12);
+      border: 1px solid rgba(201, 168, 76, 0.3);
+      color: var(--gold);
+    }
+
+    .mock-pulse {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-top: 1.5rem;
+      padding-top: 1rem;
+      border-top: 1px solid rgba(201, 168, 76, 0.1);
+      font-size: 0.72rem;
+      color: var(--text-muted);
+    }
+
+    .pulse-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: #4ade80;
+      animation: pulse 2s ease infinite;
+    }
+
+    /* ── FEATURES ── */
+    .features-section {
+      background: transparent;
+    }
+
+    .features-intro {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 4rem;
+      align-items: end;
+      margin-bottom: 4rem;
+    }
+
+    .features-intro p {
+      font-size: 0.95rem;
+      color: var(--text-muted);
+      line-height: 1.8;
+      align-self: end;
+    }
+
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1px;
+      background: rgba(201, 168, 76, 0.08);
+    }
+
+    .feature-card {
+      background: var(--navy);
+      padding: 2.5rem;
+      transition: background 0.3s;
+    }
+
+    .feature-card:hover {
+      background: var(--navy-light);
+    }
+
+    .feature-icon {
+      width: 44px;
+      height: 44px;
+      border: 1px solid rgba(201, 168, 76, 0.2);
+      display: grid;
+      place-items: center;
+      margin-bottom: 1.5rem;
+      font-size: 1.2rem;
+      transition: border-color 0.3s;
+    }
+
+    .feature-card:hover .feature-icon {
+      border-color: var(--gold);
+    }
+
+    .feature-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.2rem;
+      font-weight: 400;
+      color: var(--cream);
+      margin-bottom: 0.75rem;
+    }
+
+    .feature-desc {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      line-height: 1.7;
+    }
+
+    /* ── TESTIMONIAL ── */
+    .testimonial-section {
+      padding: 5rem 4rem;
+      background: var(--navy-mid);
+      border-top: 1px solid rgba(201, 168, 76, 0.08);
+      border-bottom: 1px solid rgba(201, 168, 76, 0.08);
+    }
+
+    .testimonial-inner {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 4rem;
+      align-items: center;
+    }
+
+    .testimonial-deco {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 8rem;
+      color: rgba(201, 168, 76, 0.12);
+      line-height: 0.8;
+      font-weight: 300;
+    }
+
+    .testimonial-text {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.7rem;
+      font-weight: 300;
+      font-style: italic;
+      color: var(--cream);
+      line-height: 1.5;
+      margin-bottom: 1.5rem;
+    }
+
+    .testimonial-author {
+      font-size: 0.8rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--gold);
+    }
+
+    /* ── PRICING ── */
+    .pricing-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1.5rem;
+      margin-top: 4rem;
+    }
+
+    .pricing-card {
+      border: 1px solid rgba(201, 168, 76, 0.12);
+      padding: 2.5rem;
+      position: relative;
+      transition: border-color 0.3s;
+    }
+
+    .pricing-card:hover {
+      border-color: rgba(201, 168, 76, 0.35);
+    }
+
+    .pricing-card.featured {
+      border-color: var(--gold);
+      background: var(--navy-light);
+    }
+
+    .pricing-badge {
+      position: absolute;
+      top: -1px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: var(--gold);
+      color: var(--navy);
+      font-size: 0.65rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      padding: 0.3rem 1.2rem;
+      font-weight: 500;
+    }
+
+    .pricing-plan {
+      font-size: 0.72rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 1rem;
+    }
+
+    .pricing-price {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 3rem;
+      font-weight: 300;
+      color: var(--cream);
+      line-height: 1;
+      margin-bottom: 0.25rem;
+    }
+
+    .pricing-price span {
+      font-size: 1rem;
+      color: var(--text-muted);
+    }
+
+    .pricing-desc {
+      font-size: 0.82rem;
+      color: var(--text-muted);
+      margin-bottom: 2rem;
+      padding-bottom: 1.5rem;
+      border-bottom: 1px solid rgba(201, 168, 76, 0.1);
+    }
+
+    .pricing-features {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+      margin-bottom: 2rem;
+    }
+
+    .pricing-features li {
+      font-size: 0.85rem;
+      color: var(--cream-dim);
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .pricing-features li::before {
+      content: '—';
+      color: var(--gold);
+      font-size: 0.7rem;
+    }
+
+    .btn-pricing {
+      width: 100%;
+      padding: 0.9rem;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.8rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: all 0.3s;
+      border: 1px solid rgba(201, 168, 76, 0.3);
+      background: transparent;
+      color: var(--cream-dim);
+    }
+
+    .btn-pricing:hover,
+    .pricing-card.featured .btn-pricing {
+      background: var(--gold);
+      color: var(--navy);
+      border-color: var(--gold);
+    }
+
+    /* ── CTA FINAL ── */
+    .cta-section {
+      padding: 8rem 4rem;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .cta-section::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse 60% 60% at 50% 50%, rgba(201, 168, 76, 0.05) 0%, transparent 70%);
+    }
+
+    .cta-section h2 {
+      font-size: clamp(2.5rem, 4vw, 4rem);
+    }
+
+    .cta-section p {
+      font-size: 1rem;
+      color: var(--text-muted);
+      max-width: 480px;
+      margin: 1.5rem auto 3rem;
+      line-height: 1.8;
+    }
+
+    /* ── FOOTER ── */
+    footer {
+      padding: 3rem 4rem;
+      border-top: 1px solid rgba(201, 168, 76, 0.1);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      max-width: 100%;
+    }
+
+    .footer-logo {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.2rem;
+      color: var(--cream-dim);
+      letter-spacing: 0.08em;
+    }
+
+    .footer-logo span {
+      color: var(--gold);
+    }
+
+    .footer-copy {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      letter-spacing: 0.05em;
+    }
+
+    /* ── DIVIDER ── */
+    .gold-divider {
+      width: 60px;
+      height: 1px;
+      background: linear-gradient(90deg, var(--gold), transparent);
+      margin: 2rem 0;
+    }
+
+    /* ── ANIMATIONS ── */
+    @keyframes fadeUp {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes pulse {
+
+      0%,
+      100% {
+        opacity: 1;
+        transform: scale(1);
+      }
+
+      50% {
+        opacity: 0.5;
+        transform: scale(1.5);
+      }
+    }
+
+    /* Scroll reveal */
+    .reveal {
+      opacity: 0;
+      transform: translateY(24px);
+      transition: opacity 0.7s ease, transform 0.7s ease;
+    }
+
+    .reveal.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 768px) {
+      nav {
+        padding: 1.2rem 1.5rem;
+      }
+
+      .nav-links {
+        display: none;
+      }
+
+      .hero {
+        padding: 6rem 1.5rem 3rem;
+      }
+
+      section {
+        padding: 4rem 1.5rem;
+      }
+
+      .how-grid {
+        grid-template-columns: 1fr;
+        gap: 3rem;
+      }
+
+      .features-intro {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+      }
+
+      .features-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .pricing-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .stats-strip {
+        gap: 2rem;
+        flex-wrap: wrap;
+      }
+
+      .testimonial-inner {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+      }
+
+      .testimonial-deco {
+        display: none;
+      }
+
+      footer {
+        flex-direction: column;
+        gap: 1rem;
+        text-align: center;
+      }
+
+      .cta-section {
+        padding: 5rem 1.5rem;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- NAV -->
+  <nav>
+    <div class="logo">Intelli<span>Jus</span></div>
+    <ul class="nav-links">
+      <li><a href="#como-funciona">Como funciona</a></li>
+      <li><a href="#funcionalidades">Funcionalidades</a></li>
+      <li><a href="#planos">Planos</a></li>
+      <li><a href="#contato">Contato</a></li>
+    </ul>
+    <a href="#contato" class="nav-cta">Demonstração gratuita</a>
+  </nav>
+
+  <!-- HERO -->
+  <div class="hero">
+    <div class="hero-bg"></div>
+    <div class="hero-content">
+      <div class="hero-eyebrow">Monitoramento Processual Inteligente</div>
+      <h1>Enquanto você atende,<br>nós <em>monitoramos</em></h1>
+      <p class="hero-sub">
+        O IntelliJus monitora seus processos nos tribunais brasileiros 24h por dia e envia alertas inteligentes no
+        momento certo — via WhatsApp ou e-mail.
+      </p>
+      <div class="hero-actions">
+        <a href="#planos" class="btn-primary">Solicitar demonstração</a>
+        <a href="#como-funciona" class="btn-outline">Como funciona</a>
+      </div>
+
+      <div class="stats-strip">
+        <div class="stat">
+          <span class="stat-number">24h</span>
+          <span class="stat-label">Monitoramento contínuo</span>
+        </div>
+        <div class="stat">
+          <span class="stat-number">+30</span>
+          <span class="stat-label">Tribunais integrados</span>
+        </div>
+        <div class="stat">
+          <span class="stat-number">100%</span>
+          <span class="stat-label">Automatizado</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- COMO FUNCIONA -->
+  <section id="como-funciona" style="max-width:1200px; margin:0 auto;">
+    <div class="how-section">
+      <span class="section-label reveal">Processo</span>
+      <h2 class="reveal">Simples para você.<br><em>Sofisticado</em> por dentro.</h2>
+      <div class="gold-divider reveal"></div>
+
+      <div class="how-grid">
+        <div class="how-steps reveal">
+          <div class="step">
+            <div class="step-num">01</div>
+            <div>
+              <div class="step-title">Cadastre seus processos</div>
+              <p class="step-desc">Informe o número do processo, tribunal, responsável e os horários em que deseja ser
+                monitorado. Configuração em menos de 2 minutos.</p>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-num">02</div>
+            <div>
+              <div class="step-title">Monitoramento automático</div>
+              <p class="step-desc">Nos horários definidos, o IntelliJus consulta automaticamente o DataJud e identifica
+                novas movimentações processuais.</p>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-num">03</div>
+            <div>
+              <div class="step-title">Análise por inteligência artificial</div>
+              <p class="step-desc">Cada movimentação é analisada por IA, que classifica a urgência e sugere a ação mais
+                adequada para o advogado responsável.</p>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-num">04</div>
+            <div>
+              <div class="step-title">Alerta imediato</div>
+              <p class="step-desc">Você recebe um alerta claro e objetivo via WhatsApp ou e-mail — com resumo, urgência
+                e próximo passo recomendado.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Mock alert card -->
+        <div class="mock-card reveal">
+          <div class="mock-header">
+            <div class="mock-icon">⚖️</div>
+            <div>
+              <div class="mock-title-text">IntelliJus — Novo Alerta</div>
+              <div class="mock-subtitle">Movimentação identificada agora</div>
+            </div>
+          </div>
+
+          <div class="mock-field">
+            <div class="mock-field-label">Processo</div>
+            <div class="mock-field-value">0056698.18.2025.8.17.2001</div>
+          </div>
+
+          <div class="mock-field">
+            <div class="mock-field-label">Tribunal</div>
+            <div class="mock-field-value">TJPE — 20ª Vara Cível da Capital</div>
+          </div>
+
+          <div class="mock-field">
+            <div class="mock-field-label">Movimentação</div>
+            <div class="mock-field-value">Conclusão para decisão interlocutória — antecipação de tutela</div>
+          </div>
+
+          <div class="mock-field">
+            <div class="mock-field-label">Urgência</div>
+            <div><span class="urgency-badge">Alta</span></div>
+          </div>
+
+          <div class="mock-field">
+            <div class="mock-field-label">Ação recomendada</div>
+            <div class="mock-field-value">Acompanhar decisão e preparar manifestação em até 15 dias</div>
+          </div>
+
+          <div class="mock-pulse">
+            <div class="pulse-dot"></div>
+            Monitoramento ativo · Atualizado agora
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FUNCIONALIDADES -->
+  <section id="funcionalidades" style="max-width:1200px; margin:0 auto;">
+    <div class="features-intro">
+      <div>
+        <span class="section-label reveal">Funcionalidades</span>
+        <h2 class="reveal">Tudo que seu escritório<br><em>precisa</em> agora</h2>
+      </div>
+      <p class="reveal">O IntelliJus foi construído para escritórios que não podem se dar ao luxo de perder um prazo.
+        Monitoramento preciso, alertas inteligentes e zero trabalho manual.</p>
+    </div>
+
+    <div class="features-grid reveal">
+      <div class="feature-card">
+        <div class="feature-icon">🔍</div>
+        <div class="feature-title">Monitoramento em +30 Tribunais</div>
+        <p class="feature-desc">Cobertura completa dos principais tribunais brasileiros via DataJud CNJ. TJSP, TJRJ,
+          TJPE, TRFs, TST e muito mais.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🤖</div>
+        <div class="feature-title">Análise por IA</div>
+        <p class="feature-desc">Cada movimentação é analisada automaticamente. A IA classifica urgência e sugere a ação
+          jurídica mais adequada.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">📱</div>
+        <div class="feature-title">Alertas via WhatsApp e E-mail</div>
+        <p class="feature-desc">Receba notificações no canal que preferir. Mensagens claras, objetivas e com todas as
+          informações que você precisa.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">⏰</div>
+        <div class="feature-title">Horários personalizados</div>
+        <p class="feature-desc">Defina os horários de monitoramento por processo. Cada caso tem seu próprio calendário
+          de verificação.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🔒</div>
+        <div class="feature-title">Deduplicação inteligente</div>
+        <p class="feature-desc">Sistema de hash garante que você nunca receba o mesmo alerta duas vezes. Apenas
+          novidades reais chegam até você.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">📊</div>
+        <div class="feature-title">Painel administrativo</div>
+        <p class="feature-desc">Gerencie todos os processos, clientes e movimentações em um único lugar. Visibilidade
+          total do seu portfólio.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- TESTIMONIAL -->
+  <div class="testimonial-section">
+    <div class="testimonial-inner">
+      <div class="testimonial-deco">"</div>
+      <div>
+        <p class="testimonial-text reveal">"Antes eu passava horas verificando processos manualmente. Hoje o IntelliJus
+          faz isso por mim e ainda me diz o que precisa de atenção urgente."</p>
+        <div class="testimonial-author reveal">Dr. Carlos Mendes — Advogado Tributarista, Recife</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PLANOS -->
+  <section id="planos" style="max-width:1200px; margin:0 auto;">
+    <span class="section-label reveal">Planos</span>
+    <h2 class="reveal">Investimento que se paga<br>no primeiro <em>prazo evitado</em></h2>
+    <div class="gold-divider reveal"></div>
+
+    <div class="pricing-grid">
+      <div class="pricing-card reveal">
+        <div class="pricing-plan">Essencial</div>
+        <div class="pricing-price">R$197<span>/mês</span></div>
+        <div class="pricing-desc">Para advogados autônomos</div>
+        <ul class="pricing-features">
+          <li>Até 10 processos monitorados</li>
+          <li>Alertas via WhatsApp</li>
+          <li>2 horários por processo</li>
+          <li>Análise por IA</li>
+          <li>Suporte via chat</li>
+        </ul>
+        <button class="btn-pricing">Começar agora</button>
+      </div>
+
+      <div class="pricing-card featured reveal">
+        <div class="pricing-badge">Mais popular</div>
+        <div class="pricing-plan">Profissional</div>
+        <div class="pricing-price">R$497<span>/mês</span></div>
+        <div class="pricing-desc">Para escritórios pequenos e médios</div>
+        <ul class="pricing-features">
+          <li>Até 50 processos monitorados</li>
+          <li>WhatsApp + E-mail</li>
+          <li>Horários ilimitados</li>
+          <li>Análise avançada por IA</li>
+          <li>Múltiplos usuários</li>
+          <li>Suporte prioritário</li>
+        </ul>
+        <button class="btn-pricing">Começar agora</button>
+      </div>
+
+      <div class="pricing-card reveal">
+        <div class="pricing-plan">Corporativo</div>
+        <div class="pricing-price">Custom</div>
+        <div class="pricing-desc">Para grandes escritórios e departamentos jurídicos</div>
+        <ul class="pricing-features">
+          <li>Processos ilimitados</li>
+          <li>Todos os canais de alerta</li>
+          <li>API dedicada</li>
+          <li>SLA garantido</li>
+          <li>Onboarding personalizado</li>
+          <li>Gerente de conta exclusivo</li>
+        </ul>
+        <button class="btn-pricing">Falar com consultor</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- CONTATO -->
+  <div id="contato"
+    style="background: var(--navy-mid); border-top: 1px solid rgba(201,168,76,0.08); border-bottom: 1px solid rgba(201,168,76,0.08);">
+    <div
+      style="max-width:1200px; margin:0 auto; padding:7rem 4rem; display:grid; grid-template-columns:1fr 1fr; gap:6rem; align-items:start;">
+
+      <!-- Lado esquerdo -->
+      <div>
+        <span class="section-label reveal">Contato</span>
+        <h2 class="reveal">Solicite sua<br><em>demonstração</em></h2>
+        <div class="gold-divider reveal"></div>
+        <p class="reveal" style="font-size:0.95rem; color:var(--text-muted); line-height:1.8; margin-bottom:2.5rem;">
+          Preencha o formulário e nossa equipe entrará em contato em até 24 horas para agendar uma demonstração gratuita
+          e sem compromisso.
+        </p>
+
+        <div class="reveal" style="display:flex; flex-direction:column; gap:1rem;">
+          <div style="display:flex; align-items:center; gap:1rem; font-size:0.875rem; color:var(--cream-dim);">
+            <div
+              style="width:36px;height:36px;border:1px solid rgba(201,168,76,0.2);display:grid;place-items:center;flex-shrink:0;">
+              ✉</div>
+            robsonraphael123@outlook.com
+          </div>
+          <div style="display:flex; align-items:center; gap:1rem; font-size:0.875rem; color:var(--cream-dim);">
+            <div
+              style="width:36px;height:36px;border:1px solid rgba(201,168,76,0.2);display:grid;place-items:center;flex-shrink:0;">
+              💬</div>
+            WhatsApp: (81) 98171-7072
+          </div>
+          <div style="display:flex; align-items:center; gap:1rem; font-size:0.875rem; color:var(--cream-dim);">
+            <div
+              style="width:36px;height:36px;border:1px solid rgba(201,168,76,0.2);display:grid;place-items:center;flex-shrink:0;">
+              ✉</div>
+            <a href="https://linkedin.com/in/robsonraphael" target="_blank"
+              style="color:var(--cream); text-decoration:underline;">Linkedin.com/in/robsonraphael</a>
+          </div>
+          <div style="display:flex; align-items:center; gap:1rem; font-size:0.875rem; color:var(--cream-dim);">
+            <div
+              style="width:36px;height:36px;border:1px solid rgba(201,168,76,0.2);display:grid;place-items:center;flex-shrink:0;">
+              ⏱</div>
+            Resposta em até 24 horas
+          </div>
+        </div>
+      </div>
+
+      <!-- Formulário -->
+      <div class="reveal">
+        <div id="form-wrap">
+          <div style="margin-bottom:1.25rem;">
+            <label
+              style="display:block;font-size:0.72rem;letter-spacing:0.15em;text-transform:uppercase;color:var(--text-muted);margin-bottom:0.4rem;">Nome
+              completo</label>
+            <input id="c-nome" type="text" placeholder="Dr. João Silva"
+              style="width:100%;background:rgba(255,255,255,0.04);border:1px solid rgba(201,168,76,0.15);color:var(--cream);font-family:'DM Sans',sans-serif;font-size:0.9rem;padding:0.85rem 1rem;outline:none;transition:border-color 0.3s;"
+              onfocus="this.style.borderColor='#c9a84c'" onblur="this.style.borderColor='rgba(201,168,76,0.15)'" />
+          </div>
+          <div style="margin-bottom:1.25rem;">
+            <label
+              style="display:block;font-size:0.72rem;letter-spacing:0.15em;text-transform:uppercase;color:var(--text-muted);margin-bottom:0.4rem;">E-mail
+              profissional</label>
+            <input id="c-email" type="email" placeholder="joao@escritorio.com.br"
+              style="width:100%;background:rgba(255,255,255,0.04);border:1px solid rgba(201,168,76,0.15);color:var(--cream);font-family:'DM Sans',sans-serif;font-size:0.9rem;padding:0.85rem 1rem;outline:none;transition:border-color 0.3s;"
+              onfocus="this.style.borderColor='#c9a84c'" onblur="this.style.borderColor='rgba(201,168,76,0.15)'" />
+          </div>
+          <div style="margin-bottom:1.25rem;">
+            <label
+              style="display:block;font-size:0.72rem;letter-spacing:0.15em;text-transform:uppercase;color:var(--text-muted);margin-bottom:0.4rem;">WhatsApp</label>
+            <input id="c-whatsapp" type="tel" placeholder="(81) 99999-9999"
+              style="width:100%;background:rgba(255,255,255,0.04);border:1px solid rgba(201,168,76,0.15);color:var(--cream);font-family:'DM Sans',sans-serif;font-size:0.9rem;padding:0.85rem 1rem;outline:none;transition:border-color 0.3s;"
+              onfocus="this.style.borderColor='#c9a84c'" onblur="this.style.borderColor='rgba(201,168,76,0.15)'" />
+          </div>
+          <div style="margin-bottom:1.25rem;">
+            <label
+              style="display:block;font-size:0.72rem;letter-spacing:0.15em;text-transform:uppercase;color:var(--text-muted);margin-bottom:0.4rem;">Escritório
+              / Empresa</label>
+            <input id="c-escritorio" type="text" placeholder="Silva & Associados"
+              style="width:100%;background:rgba(255,255,255,0.04);border:1px solid rgba(201,168,76,0.15);color:var(--cream);font-family:'DM Sans',sans-serif;font-size:0.9rem;padding:0.85rem 1rem;outline:none;transition:border-color 0.3s;"
+              onfocus="this.style.borderColor='#c9a84c'" onblur="this.style.borderColor='rgba(201,168,76,0.15)'" />
+          </div>
+          <div style="margin-bottom:1.25rem;">
+            <label
+              style="display:block;font-size:0.72rem;letter-spacing:0.15em;text-transform:uppercase;color:var(--text-muted);margin-bottom:0.4rem;">Quantos
+              processos monitora hoje?</label>
+            <select id="c-processos"
+              style="width:100%;background:#111827;border:1px solid rgba(201,168,76,0.15);color:var(--cream);font-family:'DM Sans',sans-serif;font-size:0.9rem;padding:0.85rem 1rem;outline:none;-webkit-appearance:none;">
+              <option value="">Selecione</option>
+              <option>Menos de 10</option>
+              <option>10 a 50</option>
+              <option>50 a 200</option>
+              <option>Mais de 200</option>
+            </select>
+          </div>
+          <div style="margin-bottom:1.5rem;">
+            <label
+              style="display:block;font-size:0.72rem;letter-spacing:0.15em;text-transform:uppercase;color:var(--text-muted);margin-bottom:0.4rem;">Mensagem
+              (opcional)</label>
+            <textarea id="c-mensagem" placeholder="Conte um pouco sobre seu escritório..."
+              style="width:100%;background:rgba(255,255,255,0.04);border:1px solid rgba(201,168,76,0.15);color:var(--cream);font-family:'DM Sans',sans-serif;font-size:0.9rem;padding:0.85rem 1rem;outline:none;resize:vertical;min-height:100px;"
+              onfocus="this.style.borderColor='#c9a84c'"
+              onblur="this.style.borderColor='rgba(201,168,76,0.15)'"></textarea>
+          </div>
+          <p style="font-size:0.72rem;color:var(--text-muted);margin-bottom:1rem;">
+            Ao enviar, você concorda com nossa
+            <a href="#" onclick="openModal('modal-termos');return false;"
+              style="color:var(--gold);text-decoration:none;">Política de Privacidade</a>.
+          </p>
+          <button onclick="handleContato()"
+            style="width:100%;background:var(--gold);color:var(--navy);border:none;padding:1rem;font-family:'DM Sans',sans-serif;font-size:0.85rem;font-weight:500;letter-spacing:0.1em;text-transform:uppercase;cursor:pointer;transition:all 0.3s;"
+            onmouseover="this.style.background='#e8c97a'" onmouseout="this.style.background='#c9a84c'">
+            Solicitar demonstração gratuita
+          </button>
+        </div>
+
+        <div id="form-success"
+          style="display:none;text-align:center;padding:2rem;border:1px solid rgba(201,168,76,0.3);background:rgba(201,168,76,0.05);">
+          <div style="font-size:2rem;margin-bottom:0.75rem;">✓</div>
+          <p style="color:var(--gold);font-weight:500;margin-bottom:0.5rem;">Recebemos seu contato!</p>
+          <p style="font-size:0.875rem;color:var(--text-muted);line-height:1.6;">Nossa equipe entrará em contato em até
+            24 horas pelo WhatsApp ou e-mail informado.</p>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- CTA FINAL -->
+  <div class="cta-section">
+    <span class="section-label reveal">Comece hoje</span>
+    <h2 class="reveal">Seu próximo prazo<br><em>não pode esperar</em></h2>
+    <p class="reveal">Cadastre seus primeiros processos em menos de 5 minutos e receba seu primeiro alerta ainda hoje.
+    </p>
+    <div class="reveal">
+      <a href="#contato" class="btn-primary">Solicitar demonstração gratuita</a>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <footer style="flex-direction:column; gap:1.5rem; text-align:center; padding:2.5rem 4rem;">
+    <div class="footer-logo">Intelli<span>Jus</span></div>
+    <div style="display:flex; gap:2rem; justify-content:center; flex-wrap:wrap;">
+      <a href="#" onclick="openModal('modal-termos');return false;"
+        style="font-size:0.75rem;color:var(--text-muted);text-decoration:none;letter-spacing:0.08em;transition:color 0.3s;"
+        onmouseover="this.style.color='#c9a84c'" onmouseout="this.style.color='#7a8499'">Termos de Uso</a>
+      <a href="#" onclick="openModal('modal-privacidade');return false;"
+        style="font-size:0.75rem;color:var(--text-muted);text-decoration:none;letter-spacing:0.08em;transition:color 0.3s;"
+        onmouseover="this.style.color='#c9a84c'" onmouseout="this.style.color='#7a8499'">Política de Privacidade</a>
+      <a href="#contato"
+        style="font-size:0.75rem;color:var(--text-muted);text-decoration:none;letter-spacing:0.08em;transition:color 0.3s;"
+        onmouseover="this.style.color='#c9a84c'" onmouseout="this.style.color='#7a8499'">Contato</a>
+    </div>
+    <div class="footer-copy">© 2025 IntelliJus. Todos os direitos reservados.</div>
+  </footer>
+
+  <!-- MODAL TERMOS DE USO -->
+  <div id="modal-termos"
+    style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:500;overflow-y:auto;padding:2rem;"
+    onclick="if(event.target===this)closeModal('modal-termos')">
+    <div
+      style="max-width:720px;margin:2rem auto;background:#111827;border:1px solid rgba(201,168,76,0.2);padding:3rem;position:relative;">
+      <button onclick="closeModal('modal-termos')"
+        style="position:absolute;top:1.5rem;right:1.5rem;background:transparent;border:none;color:var(--text-muted);font-size:1.2rem;cursor:pointer;line-height:1;">✕</button>
+      <p
+        style="font-size:0.72rem;letter-spacing:0.2em;text-transform:uppercase;color:var(--gold);margin-bottom:0.75rem;">
+        IntelliJus</p>
+      <h2 style="font-family:'Cormorant Garamond',serif;font-size:2rem;font-weight:300;margin-bottom:0.5rem;">Termos de
+        Uso</h2>
+      <p
+        style="font-size:0.8rem;color:var(--text-muted);margin-bottom:2rem;padding-bottom:1.5rem;border-bottom:1px solid rgba(201,168,76,0.1);">
+        Última atualização: março de 2025</p>
+
+      <div
+        style="font-size:0.875rem;color:var(--cream-dim);line-height:1.8;display:flex;flex-direction:column;gap:1.5rem;">
+        <div>
+          <h3 style="font-family:'Cormorant Garamond',serif;font-size:1.1rem;color:var(--cream);margin-bottom:0.5rem;">
+            1. Aceitação dos Termos</h3>
+          <p>Ao utilizar os serviços da IntelliJus, o usuário declara ter lido, compreendido e concordado integralmente
+            com estes Termos de Uso. Caso não concorde com qualquer disposição, o acesso e uso da plataforma deverão ser
+            interrompidos imediatamente.</p>
+        </div>
+
+        <div>
+          <h3 style="font-family:'Cormorant Garamond',serif;font-size:1.1rem;color:var(--cream);margin-bottom:0.5rem;">
+            2. O Serviço</h3>
+          <p>A IntelliJus oferece uma plataforma de monitoramento processual automatizado que consulta dados públicos
+            disponibilizados pelo Conselho Nacional de Justiça (CNJ) por meio do DataJud, identificando novas
+            movimentações em processos judiciais e notificando o usuário via WhatsApp e/ou e-mail.</p>
+        </div>
+
+        <div>
+          <h3 style="font-family:'Cormorant Garamond',serif;font-size:1.1rem;color:var(--cream);margin-bottom:0.5rem;">
+            3. O que o Serviço NÃO inclui</h3>
+          <p>A IntelliJus não substitui o acompanhamento jurídico por profissional habilitado; não realiza interpretação
+            jurídica das movimentações; não garante disponibilidade integral da API do DataJud CNJ; não cobre tribunais
+            não integrados ao DataJud; e não se responsabiliza por atrasos na publicação de movimentações pelos
+            tribunais.</p>
+        </div>
+
+        <div>
+          <h3 style="font-family:'Cormorant Garamond',serif;font-size:1.1rem;color:var(--cream);margin-bottom:0.5rem;">
+            4. Responsabilidades do Usuário</h3>
+          <p>O usuário é responsável por fornecer informações precisas, manter contatos atualizados, verificar
+            movimentações diretamente no tribunal competente e tomar as providências jurídicas cabíveis dentro dos
+            prazos legais, independentemente dos alertas recebidos.</p>
+        </div>
+
+        <div>
+          <h3 style="font-family:'Cormorant Garamond',serif;font-size:1.1rem;color:var(--cream);margin-bottom:0.5rem;">
+            5. Planos e Pagamento</h3>
+          <p>O pagamento é realizado de forma recorrente mensal e pode ser cancelado a qualquer momento, sem multa ou
+            fidelidade. O acesso poderá ser suspenso em caso de inadimplência após 5 dias corridos do vencimento.</p>
+        </div>
+
+        <div>
+          <h3 style="font-family:'Cormorant Garamond',serif;font-size:1.1rem;color:var(--cream);margin-bottom:0.5rem;">
+            6. Limitação de Responsabilidade</h3>
+          <p>A responsabilidade total da IntelliJus, em qualquer hipótese, será limitada ao valor pago pelo usuário nos
+            últimos 30 dias. A IntelliJus não será responsabilizada por perdas decorrentes de indisponibilidade do
+            DataJud CNJ ou falhas de provedores de mensagens.</p>
+        </div>
+
+        <div>
+          <h3 style="font-family:'Cormorant Garamond',serif;font-size:1.1rem;color:var(--cream);margin-bottom:0.5rem;">
+            7. Foro</h3>
+          <p>Fica eleito o foro da comarca de Recife, Estado de Pernambuco, para dirimir quaisquer controvérsias
+            oriundas deste instrumento.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL POLÍTICA DE PRIVACIDADE -->
+  <div id="modal-privacidade"
+    style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:500;overflow-y:auto;padding:2rem;"
+    onclick="if(event.target===this)closeModal('modal-privacidade')">
+    <div
+      style="max-width:720px;margin:2rem auto;background:#111827;border:1px solid rgba(201,168,76,0.2);padding:3rem;position:relative;">
+      <button onclick="closeModal('modal-privacidade')"
+        style="position:absolute;top:1.5rem;right:1.5rem;background:transparent;border:none;color:var(--text-muted);font-size:1.2rem;cursor:pointer;line-height:1;">✕</button>
+      <p
+        style="font-size:0.72rem;letter-spacing:0.2em;text-transform:uppercase;color:var(--gold);margin-bottom:0.75rem;">
+        IntelliJus</p>
+      <h2 style="font-family:'Cormorant Garamond',serif;font-size:2rem;font-weight:300;margin-bottom:0.5rem;">Política
+        de Privacidade</h2>
+      <p
+        style="font-size:0.8rem;color:var(--text-muted);margin-bottom:2rem;padding-bottom:1.5rem;border-bottom:1px solid rgba(201,168,76,0.1);">
+        Em conformidade com a LGPD (Lei nº 13.709/2018) — Última atualização: março de 2025</p>
+
+      <div
+        style="font-size:0.875rem;color:var(--cream-dim);line-height:1.8;display:flex;flex-direction:column;gap:1.5rem;">
+        <div>
+          <h3 style="font-family:'Cormorant Garamond',serif;font-size:1.1rem;color:var(--cream);margin-bottom:0.5rem;">
+            1. Controlador dos Dados</h3>
+          <p>A IntelliJus é a controladora dos dados pessoais coletados em sua plataforma. Contato do Encarregado (DPO):
+            <span style="color:var(--gold)">privacidade@intellijus.com.br</span></p>
+        </div>
+
+        <div>
+          <h3 style="font-family:'Cormorant Garamond',serif;font-size:1.1rem;color:var(--cream);margin-bottom:0.5rem;">
+            2. Dados Coletados</h3>
+          <p>Coletamos exclusivamente: nome completo, e-mail, WhatsApp, nome do escritório, números de processos
+            cadastrados e dados de navegação (logs de acesso). Não coletamos dados financeiros diretamente.</p>
+        </div>
+
+        <div>
+          <h3 style="font-family:'Cormorant Garamond',serif;font-size:1.1rem;color:var(--cream);margin-bottom:0.5rem;">
+            3. Finalidade do Tratamento</h3>
+          <p>Os dados são utilizados exclusivamente para prestação do serviço de monitoramento, envio de alertas
+            processuais, comunicações contratuais e melhoria da plataforma (dados anonimizados).</p>
+        </div>
+
+        <div>
+          <h3 style="font-family:'Cormorant Garamond',serif;font-size:1.1rem;color:var(--cream);margin-bottom:0.5rem;">
+            4. Compartilhamento</h3>
+          <p>Não vendemos dados. Compartilhamos apenas com provedores de infraestrutura (Supabase), serviços de
+            mensagens (Evolution API e Resend) e autoridades públicas quando exigido por lei.</p>
+        </div>
+
+        <div>
+          <h3 style="font-family:'Cormorant Garamond',serif;font-size:1.1rem;color:var(--cream);margin-bottom:0.5rem;">
+            5. Seus Direitos (LGPD)</h3>
+          <p>Você tem direito a acessar, corrigir, excluir e portar seus dados a qualquer momento. Para exercer esses
+            direitos, entre em contato: <span style="color:var(--gold)">privacidade@intellijus.com.br</span></p>
+        </div>
+
+        <div>
+          <h3 style="font-family:'Cormorant Garamond',serif;font-size:1.1rem;color:var(--cream);margin-bottom:0.5rem;">
+            6. Retenção</h3>
+          <p>Os dados são mantidos pelo período de vigência do contrato e por até 5 anos após o encerramento, para fins
+            legais. Após esse prazo, são excluídos ou anonimizados.</p>
+        </div>
+
+        <div>
+          <h3 style="font-family:'Cormorant Garamond',serif;font-size:1.1rem;color:var(--cream);margin-bottom:0.5rem;">
+            7. Segurança</h3>
+          <p>Adotamos criptografia em trânsito (TLS), autenticação segura e controle de acesso por perfis para proteger
+            seus dados contra acesso não autorizado.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Scroll reveal
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('visible');
+          observer.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.1 });
+    document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+    // Staggered reveal
+    document.querySelectorAll('.features-grid .feature-card, .pricing-grid .pricing-card').forEach((el, i) => {
+      el.style.transitionDelay = `${i * 0.1}s`;
+    });
+
+    // Nav scroll
+    window.addEventListener('scroll', () => {
+      const nav = document.querySelector('nav');
+      nav.style.borderBottomColor = window.scrollY > 50 ? 'rgba(201,168,76,0.2)' : 'rgba(201,168,76,0.12)';
+    });
+
+    // Nav contato link
+    document.querySelector('nav').innerHTML += '';
+    document.querySelectorAll('a[href="#contato"]').forEach(a => {
+      a.addEventListener('click', e => {
+        e.preventDefault();
+        document.getElementById('contato').scrollIntoView({ behavior: 'smooth' });
+      });
+    });
+
+    // Modais
+    function openModal(id) {
+      document.getElementById(id).style.display = 'block';
+      document.body.style.overflow = 'hidden';
+    }
+    function closeModal(id) {
+      document.getElementById(id).style.display = 'none';
+      document.body.style.overflow = '';
+    }
+    document.addEventListener('keydown', e => {
+      if (e.key === 'Escape') {
+        closeModal('modal-termos');
+        closeModal('modal-privacidade');
+      }
+    });
+
+    // Formulário de contato
+    function handleContato() {
+      // Coleta os valores dos campos
+      const payload = {
+        nome: document.getElementById('c-nome').value.trim(),
+        email: document.getElementById('c-email').value.trim(),
+        whatsapp: document.getElementById('c-whatsapp').value.trim(),
+        escritorio: document.getElementById('c-escritorio').value.trim(),
+        volume: document.getElementById('c-processos').value.trim()
+      };
+
+      // Validação simples
+      if (!payload.nome || !payload.email || !payload.whatsapp) {
+        alert('Por favor, preencha nome, e-mail e WhatsApp.');
+        return;
+      }
+
+      const enviarFormulario = async () => {
+        try {
+          const response = await fetch('http://localhost:3000/api/contato', 
+            {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(payload),
+            }
+          );
+
+          if (response.ok) {
+            alert("Mensagem enviada com sucesso! Entraremos em contato.");
+          } else {
+            alert("Erro ao enviar. Tente novamente mais tarde.");
+          }
+        } catch (err) { console.error("Erro na requisição:", err); }
+      };
+      enviarFormulario();
+    }
+  </script>
+</body>
+
+</html>

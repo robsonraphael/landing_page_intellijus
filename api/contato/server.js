@@ -39,7 +39,3 @@ app.post("/api/contato", async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 });
-
-app.listen(3000, () => {
-  console.log("API rodando em http://localhost:3000");
-});

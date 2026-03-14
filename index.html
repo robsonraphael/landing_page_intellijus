@@ -1175,79 +1175,81 @@
 
       <!-- Formulário -->
       <div class="reveal">
-        <div id="form-wrap">
-          <div style="margin-bottom:1.25rem;">
-            <label
-              style="display:block;font-size:0.72rem;letter-spacing:0.15em;text-transform:uppercase;color:var(--text-muted);margin-bottom:0.4rem;">Nome
-              completo</label>
-            <input id="c-nome" type="text" placeholder="Dr. João Silva"
-              style="width:100%;background:rgba(255,255,255,0.04);border:1px solid rgba(201,168,76,0.15);color:var(--cream);font-family:'DM Sans',sans-serif;font-size:0.9rem;padding:0.85rem 1rem;outline:none;transition:border-color 0.3s;"
-              onfocus="this.style.borderColor='#c9a84c'" onblur="this.style.borderColor='rgba(201,168,76,0.15)'" />
+        <form id="contatoForm" onsubmit="handleContato(); return false;">
+          <div>
+            <div style="margin-bottom:1.25rem;">
+              <label
+                style="display:block;font-size:0.72rem;letter-spacing:0.15em;text-transform:uppercase;color:var(--text-muted);margin-bottom:0.4rem;">Nome
+                completo</label>
+              <input id="c-nome" type="text" placeholder="Dr. João Silva"
+                style="width:100%;background:rgba(255,255,255,0.04);border:1px solid rgba(201,168,76,0.15);color:var(--cream);font-family:'DM Sans',sans-serif;font-size:0.9rem;padding:0.85rem 1rem;outline:none;transition:border-color 0.3s;"
+                onfocus="this.style.borderColor='#c9a84c'" onblur="this.style.borderColor='rgba(201,168,76,0.15)'" />
+            </div>
+            <div style="margin-bottom:1.25rem;">
+              <label
+                style="display:block;font-size:0.72rem;letter-spacing:0.15em;text-transform:uppercase;color:var(--text-muted);margin-bottom:0.4rem;">E-mail
+                profissional</label>
+              <input id="c-email" type="email" placeholder="joao@escritorio.com.br"
+                style="width:100%;background:rgba(255,255,255,0.04);border:1px solid rgba(201,168,76,0.15);color:var(--cream);font-family:'DM Sans',sans-serif;font-size:0.9rem;padding:0.85rem 1rem;outline:none;transition:border-color 0.3s;"
+                onfocus="this.style.borderColor='#c9a84c'" onblur="this.style.borderColor='rgba(201,168,76,0.15)'" />
+            </div>
+            <div style="margin-bottom:1.25rem;">
+              <label
+                style="display:block;font-size:0.72rem;letter-spacing:0.15em;text-transform:uppercase;color:var(--text-muted);margin-bottom:0.4rem;">WhatsApp</label>
+              <input id="c-whatsapp" type="tel" placeholder="(81) 99999-9999"
+                style="width:100%;background:rgba(255,255,255,0.04);border:1px solid rgba(201,168,76,0.15);color:var(--cream);font-family:'DM Sans',sans-serif;font-size:0.9rem;padding:0.85rem 1rem;outline:none;transition:border-color 0.3s;"
+                onfocus="this.style.borderColor='#c9a84c'" onblur="this.style.borderColor='rgba(201,168,76,0.15)'" />
+            </div>
+            <div style="margin-bottom:1.25rem;">
+              <label
+                style="display:block;font-size:0.72rem;letter-spacing:0.15em;text-transform:uppercase;color:var(--text-muted);margin-bottom:0.4rem;">Escritório
+                / Empresa</label>
+              <input id="c-escritorio" type="text" placeholder="Silva & Associados"
+                style="width:100%;background:rgba(255,255,255,0.04);border:1px solid rgba(201,168,76,0.15);color:var(--cream);font-family:'DM Sans',sans-serif;font-size:0.9rem;padding:0.85rem 1rem;outline:none;transition:border-color 0.3s;"
+                onfocus="this.style.borderColor='#c9a84c'" onblur="this.style.borderColor='rgba(201,168,76,0.15)'" />
+            </div>
+            <div style="margin-bottom:1.25rem;">
+              <label
+                style="display:block;font-size:0.72rem;letter-spacing:0.15em;text-transform:uppercase;color:var(--text-muted);margin-bottom:0.4rem;">Quantos
+                processos monitora hoje?</label>
+              <select id="c-processos"
+                style="width:100%;background:#111827;border:1px solid rgba(201,168,76,0.15);color:var(--cream);font-family:'DM Sans',sans-serif;font-size:0.9rem;padding:0.85rem 1rem;outline:none;-webkit-appearance:none;">
+                <option value="">Selecione</option>
+                <option>Menos de 10</option>
+                <option>10 a 50</option>
+                <option>50 a 200</option>
+                <option>Mais de 200</option>
+              </select>
+            </div>
+            <div style="margin-bottom:1.5rem;">
+              <label
+                style="display:block;font-size:0.72rem;letter-spacing:0.15em;text-transform:uppercase;color:var(--text-muted);margin-bottom:0.4rem;">Mensagem
+                (opcional)</label>
+              <textarea id="c-mensagem" placeholder="Conte um pouco sobre seu escritório..."
+                style="width:100%;background:rgba(255,255,255,0.04);border:1px solid rgba(201,168,76,0.15);color:var(--cream);font-family:'DM Sans',sans-serif;font-size:0.9rem;padding:0.85rem 1rem;outline:none;resize:vertical;min-height:100px;"
+                onfocus="this.style.borderColor='#c9a84c'"
+                onblur="this.style.borderColor='rgba(201,168,76,0.15)'"></textarea>
+            </div>
+            <p style="font-size:0.72rem;color:var(--text-muted);margin-bottom:1rem;">
+              Ao enviar, você concorda com nossa
+              <a href="#" onclick="openModal('modal-termos');return false;"
+                style="color:var(--gold);text-decoration:none;">Política de Privacidade</a>.
+            </p>
+            <button type="submit"
+              style="width:100%;background:var(--gold);color:var(--navy);border:none;padding:1rem;font-family:'DM Sans',sans-serif;font-size:0.85rem;font-weight:500;letter-spacing:0.1em;text-transform:uppercase;cursor:pointer;transition:all 0.3s;"
+              onmouseover="this.style.background='#e8c97a'" onmouseout="this.style.background='#c9a84c'">
+              Solicitar demonstração gratuita
+            </button>
           </div>
-          <div style="margin-bottom:1.25rem;">
-            <label
-              style="display:block;font-size:0.72rem;letter-spacing:0.15em;text-transform:uppercase;color:var(--text-muted);margin-bottom:0.4rem;">E-mail
-              profissional</label>
-            <input id="c-email" type="email" placeholder="joao@escritorio.com.br"
-              style="width:100%;background:rgba(255,255,255,0.04);border:1px solid rgba(201,168,76,0.15);color:var(--cream);font-family:'DM Sans',sans-serif;font-size:0.9rem;padding:0.85rem 1rem;outline:none;transition:border-color 0.3s;"
-              onfocus="this.style.borderColor='#c9a84c'" onblur="this.style.borderColor='rgba(201,168,76,0.15)'" />
-          </div>
-          <div style="margin-bottom:1.25rem;">
-            <label
-              style="display:block;font-size:0.72rem;letter-spacing:0.15em;text-transform:uppercase;color:var(--text-muted);margin-bottom:0.4rem;">WhatsApp</label>
-            <input id="c-whatsapp" type="tel" placeholder="(81) 99999-9999"
-              style="width:100%;background:rgba(255,255,255,0.04);border:1px solid rgba(201,168,76,0.15);color:var(--cream);font-family:'DM Sans',sans-serif;font-size:0.9rem;padding:0.85rem 1rem;outline:none;transition:border-color 0.3s;"
-              onfocus="this.style.borderColor='#c9a84c'" onblur="this.style.borderColor='rgba(201,168,76,0.15)'" />
-          </div>
-          <div style="margin-bottom:1.25rem;">
-            <label
-              style="display:block;font-size:0.72rem;letter-spacing:0.15em;text-transform:uppercase;color:var(--text-muted);margin-bottom:0.4rem;">Escritório
-              / Empresa</label>
-            <input id="c-escritorio" type="text" placeholder="Silva & Associados"
-              style="width:100%;background:rgba(255,255,255,0.04);border:1px solid rgba(201,168,76,0.15);color:var(--cream);font-family:'DM Sans',sans-serif;font-size:0.9rem;padding:0.85rem 1rem;outline:none;transition:border-color 0.3s;"
-              onfocus="this.style.borderColor='#c9a84c'" onblur="this.style.borderColor='rgba(201,168,76,0.15)'" />
-          </div>
-          <div style="margin-bottom:1.25rem;">
-            <label
-              style="display:block;font-size:0.72rem;letter-spacing:0.15em;text-transform:uppercase;color:var(--text-muted);margin-bottom:0.4rem;">Quantos
-              processos monitora hoje?</label>
-            <select id="c-processos"
-              style="width:100%;background:#111827;border:1px solid rgba(201,168,76,0.15);color:var(--cream);font-family:'DM Sans',sans-serif;font-size:0.9rem;padding:0.85rem 1rem;outline:none;-webkit-appearance:none;">
-              <option value="">Selecione</option>
-              <option>Menos de 10</option>
-              <option>10 a 50</option>
-              <option>50 a 200</option>
-              <option>Mais de 200</option>
-            </select>
-          </div>
-          <div style="margin-bottom:1.5rem;">
-            <label
-              style="display:block;font-size:0.72rem;letter-spacing:0.15em;text-transform:uppercase;color:var(--text-muted);margin-bottom:0.4rem;">Mensagem
-              (opcional)</label>
-            <textarea id="c-mensagem" placeholder="Conte um pouco sobre seu escritório..."
-              style="width:100%;background:rgba(255,255,255,0.04);border:1px solid rgba(201,168,76,0.15);color:var(--cream);font-family:'DM Sans',sans-serif;font-size:0.9rem;padding:0.85rem 1rem;outline:none;resize:vertical;min-height:100px;"
-              onfocus="this.style.borderColor='#c9a84c'"
-              onblur="this.style.borderColor='rgba(201,168,76,0.15)'"></textarea>
-          </div>
-          <p style="font-size:0.72rem;color:var(--text-muted);margin-bottom:1rem;">
-            Ao enviar, você concorda com nossa
-            <a href="#" onclick="openModal('modal-termos');return false;"
-              style="color:var(--gold);text-decoration:none;">Política de Privacidade</a>.
-          </p>
-          <button onclick="handleContato()"
-            style="width:100%;background:var(--gold);color:var(--navy);border:none;padding:1rem;font-family:'DM Sans',sans-serif;font-size:0.85rem;font-weight:500;letter-spacing:0.1em;text-transform:uppercase;cursor:pointer;transition:all 0.3s;"
-            onmouseover="this.style.background='#e8c97a'" onmouseout="this.style.background='#c9a84c'">
-            Solicitar demonstração gratuita
-          </button>
-        </div>
+        </form>
 
         <div id="form-success"
-          style="display:none;text-align:center;padding:2rem;border:1px solid rgba(201,168,76,0.3);background:rgba(201,168,76,0.05);">
-          <div style="font-size:2rem;margin-bottom:0.75rem;">✓</div>
-          <p style="color:var(--gold);font-weight:500;margin-bottom:0.5rem;">Recebemos seu contato!</p>
-          <p style="font-size:0.875rem;color:var(--text-muted);line-height:1.6;">Nossa equipe entrará em contato em até
-            24 horas pelo WhatsApp ou e-mail informado.</p>
-        </div>
+            style="display:none;text-align:center;padding:2rem;border:1px solid rgba(201,168,76,0.3);background:rgba(201,168,76,0.05);">
+            <div style="font-size:2rem;margin-bottom:0.75rem;">✓</div>
+            <p style="color:var(--gold);font-weight:500;margin-bottom:0.5rem;">Recebemos seu contato!</p>
+            <p style="font-size:0.875rem;color:var(--text-muted);line-height:1.6;">Nossa equipe entrará em contato em até
+              24 horas pelo WhatsApp ou e-mail informado.</p>
+          </div>
       </div>
 
     </div>
@@ -1496,7 +1498,7 @@
 
       const enviarFormulario = async () => {
         try {
-          const response = await fetch('http://localhost:3000/api/contato', 
+          const response = await fetch('/api/contato', 
             {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },

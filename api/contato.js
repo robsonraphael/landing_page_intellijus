@@ -1,27 +1,20 @@
-import express from "express";
-import cors from "cors";
 import { Resend } from "resend";
-import dotenv from "dotenv";
-
-dotenv.config();
-
-const app = express();
-
-app.use(express.json());
-
-app.use(cors({
-  origin: ["http://127.0.0.1:5500", "http://localhost:5500"]
-}));
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
-app.post("/api/contato", async (req, res) => {
+export default async function handler(req, res) {
+
+  if (req.method !== "POST") {
+    return res.status(405).json({ error: "Method not allowed" });
+  }
+
   const { nome, email, whatsapp, escritorio, volume } = req.body;
 
   try {
+
     await resend.emails.send({
       from: "IntelliJus <contato@seudominio.com.br>",
-      to: ["robsonraphael123@outlook.com"],
+      to: ["robsonraphael2001@gmail.com"],
       subject: "Novo Lead: Solicitação de Demonstração",
       html: `
         <h2>Novo contato via Landing Page</h2>
@@ -33,9 +26,11 @@ app.post("/api/contato", async (req, res) => {
       `
     });
 
-    res.status(200).json({ success: true });
+    return res.status(200).json({ success: true });
 
   } catch (error) {
-    res.status(500).json({ error: error.message });
+
+    return res.status(500).json({ error: error.message });
+
   }
-});
+}

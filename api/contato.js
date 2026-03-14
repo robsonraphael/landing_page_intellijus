@@ -14,7 +14,7 @@ export default async function handler(req, res) {
 
     await resend.emails.send({
       from: "IntelliJus <contato@seudominio.com.br>",
-      to: ["robsonraphael2001@gmail.com"],
+      to: ["robsonraphael123@outlook.com"],
       subject: "Novo Lead: Solicitação de Demonstração",
       html: `
         <h2>Novo contato via Landing Page</h2>
